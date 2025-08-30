@@ -2,9 +2,7 @@ import { getFacebookLogin } from './login';
 import { FbGroupDto, FbPostDto } from './dto';
 import { plainToInstance } from 'class-transformer';
 import { getBrowser } from '@/services/core/browser';
-
-const matchGroup = (s: string) => /(\/groups\/|^)(\d{10,})/.exec(s)?.[2];
-const matchPost = (s: string) => /(\/posts\/|^)(\d{10,})/.exec(s)?.[2];
+import { matchGroup, matchPost } from './utils';
 
 /**
  * extracts group id and post id from a Facebook post URL
@@ -60,22 +58,11 @@ export const url2FbGroup = async (
 /**
  * navigates to a specific Facebook group
  */
-export const goToGroup = async (target: string | FbGroupDto | FbPostDto) => {
+export const goToGroup = async (url: string) => {
   const page = await getFacebookLogin();
 
-  // get group id
-  let groupId: string;
-  if (typeof target === 'string') {
-    groupId = (await url2FbGroup(target, { noName: true })).id;
-  } else if (target instanceof FbGroupDto) {
-    groupId = target.id;
-  } else {
-    groupId = target.groupId;
-  }
-
-  const fullUrl = `https://www.facebook.com/groups/${groupId}`;
-  console.debug(`[DEBUG] Navigating to group: ${target}`);
-  await page.goto(fullUrl, {
+  console.debug(`[DEBUG] Navigating to group: ${url}`);
+  await page.goto(url, {
     waitUntil: 'networkidle2',
   });
 

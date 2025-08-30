@@ -1,6 +1,6 @@
 import type { Page } from 'puppeteer';
 import { getPage } from '@/services/core/browser';
-import { PASSWORD, USERNAME } from '@/services/core/config';
+import { FB_PASS, FB_USER } from '@/services/core/config';
 
 let facebookPageInstance: Page | null = null;
 
@@ -36,12 +36,12 @@ export const getFacebookLogin = async (): Promise<Page> => {
     await page.bringToFront();
     (
       await page.waitForSelector('#email', { visible: true, timeout: 5000 })
-    )?.type(USERNAME, {
+    )?.type(FB_USER, {
       delay: 100,
     });
     (
       await page.waitForSelector('#pass', { visible: true, timeout: 5000 })
-    )?.type(PASSWORD, {
+    )?.type(FB_PASS, {
       delay: 100,
     });
 

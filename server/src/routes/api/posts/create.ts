@@ -1,10 +1,14 @@
 import { FastifyPluginAsync } from 'fastify';
-import { createPostInGroup } from '@/services/facebook/post/create';
+import { createPostFromFb } from '@/services/facebook/posts/create';
 import { unlink } from 'fs/promises';
+import { FbPostDto } from '@/services/facebook/dto';
+import { existsGroup } from '@/services/store/groups/get';
+import { savePost } from '@/services/store/posts/save';
+import { instanceToPlain } from 'class-transformer';
 
 const createPostRoute: FastifyPluginAsync = async (app) => {
   app.post(
-    '/create',
+    '/',
     {
       schema: {
         description:
@@ -12,9 +16,9 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
         consumes: ['multipart/form-data'],
         body: {
           type: 'object',
-          required: ['groupUrl', 'message'],
+          required: ['groupId', 'message'],
           properties: {
-            groupUrl: {
+            groupId: {
               type: 'string',
               description:
                 'URL del grupo de Facebook donde se publicará el mensaje',
@@ -26,6 +30,12 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
               minLength: 1,
               examples: ['Vendo croquetas a 9000 dólares'],
             },
+            tags: {
+              type: 'array',
+            },
+            desc: {
+              type: 'string',
+            },
           },
           additionalProperties: true,
         },
@@ -36,21 +46,31 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
 
       try {
         const files = await request.saveRequestFiles();
-        const body = request.body as { groupUrl?: string; message?: string };
+        const body = request.body as {
+          groupId: string;
+          message: string;
+          tags?: string[];
+          desc?: string;
+        };
         fileUris = files.map((file) => file.filepath);
 
-        if (!body.groupUrl || !body.message) {
-          return reply
-            .status(400)
-            .send({ error: 'groupUrl y message son requeridos' });
+        if (!(await existsGroup(body.groupId))) {
+          throw new Error(`Group ${body.groupId} not register yet`);
         }
 
-        const postPath = await createPostInGroup(
-          body.groupUrl,
+        const post = await createPostFromFb(
+          body.groupId,
           body.message,
           fileUris
         );
-        reply.send({ success: true, postPath });
+
+        post.desc = body.desc || '';
+        post.tags = body.tags || [];
+
+        reply.log.debug('Saving in redis the post');
+        await savePost(post);
+
+        reply.send({ success: true, post: instanceToPlain(post) });
       } catch (err) {
         reply.log.error(err);
 
@@ -67,6 +87,6 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
       }
     }
   );
-}
+};
 
 export default createPostRoute;

@@ -1,5 +1,8 @@
+import { plainToInstance } from 'class-transformer';
 import { getFacebookLogin } from '../login';
 import { goToGroup } from '../navigation';
+import { FbGroupDto, FbPostDto } from '../dto';
+import { matchGroup, matchPost } from '../utils';
 
 /**
  * The implemented process to publish in a group is:
@@ -14,36 +17,22 @@ import { goToGroup } from '../navigation';
  * Note: selectors used in this function are based on the current Facebook HTML structure
  * and may change over time
  */
-
-export const createPostInGroup = async (
-  groupPath: string,
+export const createPostFromFb = async (
+  groupId: string,
   message: string,
   filePaths: string[] = []
-): Promise<string> => {
-  console.debug(`[DEBUG] Starting post process for group: ${groupPath}`);
+): Promise<FbPostDto> => {
+  console.debug(`[DEBUG] Starting post process for group: ${groupId}`);
   console.debug(`[DEBUG] |_____ Message length: ${message.length}`);
   console.debug(`[DEBUG] |_____ Files to upload: ${filePaths.length}`);
 
   const page = await getFacebookLogin();
-  await goToGroup(groupPath);
-
-  await page.waitForSelector('[role="button"]', {
-    visible: true,
-    timeout: 10000,
-  });
+  await goToGroup(FbGroupDto.makeUrl(groupId));
 
   // click on "Escribe algo..." button
-  const buttonModal = await page.waitForSelector(
-    'div[class="x1i10hfl x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x16tdsg8 x1hl2dhg xggy1nq x87ps6o x1lku1pv x1a2a7pz x6s0dn4 xmjcpbm x12ol6y4 x180vkcf x1khw62d x709u02 x78zum5 x1q0g3np x1iyjqo2 x1nhvcw1 x1n2onr6 xt7dq6l x1ba4aug x1y1aw1k xpdmqnj xwib8y2 x1g0dm76"]',
-    { timeout: 10000 }
+  const buttonModal = page.locator(
+    'div[class="x1i10hfl x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x16tdsg8 x1hl2dhg xggy1nq x87ps6o x1lku1pv x1a2a7pz x6s0dn4 xmjcpbm x12ol6y4 x180vkcf x1khw62d x709u02 x78zum5 x1q0g3np x1iyjqo2 x1nhvcw1 x1n2onr6 xt7dq6l x1ba4aug x1y1aw1k xpdmqnj xwib8y2 x1g0dm76"]'
   );
-
-  if (!buttonModal) {
-    console.error('[DEBUG ERROR] Post creation button not found');
-    throw new Error(
-      "FATAL!: 'Escribe algo...' button not found, please check the selector in the code, facebook may have changed their HTML structure."
-    );
-  }
 
   console.debug('[DEBUG] Clicking post creation button');
   await buttonModal.click();
@@ -85,15 +74,8 @@ export const createPostInGroup = async (
 
   // Click on publish button
   console.debug('[DEBUG] Looking for publish button');
-  const sendButtons = await page.$$('[role=dialog] [aria-label="Publicar"]');
-
-  if (sendButtons.length > 0) {
-    console.debug('[DEBUG] Clicking publish button');
-    await sendButtons[0].click();
-  } else {
-    console.error('[DEBUG ERROR] Publish button not found');
-    throw new Error('FATAL!: Publish button not found');
-  }
+  const sendButton = page.locator('[role=dialog] [aria-label="Publicar"]');
+  await sendButton.click();
 
   // wait for publish to complete
   console.debug(
@@ -110,8 +92,8 @@ export const createPostInGroup = async (
   while (!postUrl) {
     const postLinkElement = await page.waitForSelector(
       'div[class="html-div xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x6s0dn4 x17zd0t2 x78zum5 x1q0g3np x1a02dak"]' +
-      ' ' +
-      'a[class="x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xt0psk2 x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xkrqix3 x1sur9pj xi81zsa x1s688f"]',
+        ' ' +
+        'a[class="x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xt0psk2 x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xkrqix3 x1sur9pj xi81zsa x1s688f"]',
       { timeout: 10000 }
     );
     if (!postLinkElement) {
@@ -135,11 +117,11 @@ export const createPostInGroup = async (
     }
   }
 
-  const cleanUrl = postUrl.replace(
-    /(^https\:\/\/www\.facebook\.com|\?.+$)/g,
-    ''
-  );
-  console.debug(`[DEBUG] Publication successful! Post URL: ${cleanUrl}`);
+  const post = plainToInstance(FbPostDto, {
+    id: matchPost(postUrl),
+    groupId: matchGroup(postUrl),
+  });
+  console.debug(`[DEBUG] Publication successful! Post URL: ${post.url}`);
 
-  return cleanUrl;
+  return post;
 };
