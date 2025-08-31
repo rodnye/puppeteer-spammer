@@ -1,3 +1,6 @@
+import { IsOptional, IsString } from 'class-validator';
+import { matchUser } from './utils';
+
 export class FbPostDto {
   id: string;
   groupId: string;
@@ -25,5 +28,59 @@ export class FbGroupDto {
 
   static makeUrl(groupId: string) {
     return `https://www.facebook.com/groups/${groupId}`;
+  }
+}
+
+export class FbCommentDto {
+  @IsString()
+  id: string;
+
+  @IsString()
+  groupId: string;
+
+  @IsString()
+  postId: string;
+
+  /**
+   * Tiempo en formato sencillo:
+   * 
+   * @example 
+   * "recientemente"
+   * "hace 5 min"
+   * "1 h"
+   * "7 d"
+   * 
+   */
+  @IsString()
+  @IsOptional()
+  simpleDate?: string;
+  
+  /**
+   * Nombre y apellidos del autor
+   */
+  @IsString()
+  author: string; 
+  
+  /**
+   * El contenido del comentario
+   */
+  @IsString()
+  comment: string;
+
+  @IsString()
+  private _authorId?: string;
+  set authorId(unsafeId: string) {
+    this._authorId = matchUser(unsafeId);
+  }
+  get authorId(): string | undefined {
+    return this._authorId;
+  }
+  get authorUrl() {
+    if (!this.authorId) return undefined;
+    return `https://www.facebook.com/profile.php?id=${this.authorId}`;
+  }
+
+  get url() {
+    return `https://www.facebook.com/groups/${this.groupId}/posts/${this.postId}/?comment_id=${this.id}`;
   }
 }

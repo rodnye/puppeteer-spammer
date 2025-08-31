@@ -103,6 +103,7 @@ export const createPostFromFb = async (
 
     // the correct href only appear if the cursor is hover the link
     await postLinkElement.focus();
+    await postLinkElement.hover();
 
     postUrl = await postLinkElement.evaluate((el) => el.getAttribute('href'));
 

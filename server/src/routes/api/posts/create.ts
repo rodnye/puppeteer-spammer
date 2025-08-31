@@ -1,7 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
 import { createPostFromFb } from '@/services/facebook/posts/create';
 import { unlink } from 'fs/promises';
-import { FbPostDto } from '@/services/facebook/dto';
 import { existsGroup } from '@/services/store/groups/get';
 import { savePost } from '@/services/store/posts/save';
 import { instanceToPlain } from 'class-transformer';
@@ -49,7 +48,7 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
         const body = request.body as {
           groupId: string;
           message: string;
-          tags?: string[];
+          tags?: string;
           desc?: string;
         };
         fileUris = files.map((file) => file.filepath);
@@ -65,7 +64,7 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
         );
 
         post.desc = body.desc || '';
-        post.tags = body.tags || [];
+        post.tags = body.tags?.split(",") || [];
 
         reply.log.debug('Saving in redis the post');
         await savePost(post);

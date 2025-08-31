@@ -1,6 +1,6 @@
 import type { Page } from 'puppeteer';
-import { getPage } from '@/services/core/browser';
-import { FB_PASS, FB_USER } from '@/services/core/config';
+import { getBrowser, getPage } from '@/services/core/browser';
+import { FB_PASS, FB_USER, HEADLESS_MODE } from '@/services/core/config';
 
 let facebookPageInstance: Page | null = null;
 
@@ -34,17 +34,15 @@ export const getFacebookLogin = async (): Promise<Page> => {
     );
 
     await page.bringToFront();
-    (
-      await page.waitForSelector('#email', { visible: true, timeout: 5000 })
-    )?.type(FB_USER, {
-      delay: 100,
-    });
-    (
-      await page.waitForSelector('#pass', { visible: true, timeout: 5000 })
-    )?.type(FB_PASS, {
-      delay: 100,
-    });
 
+    await page.locator('#email').fill(FB_USER);
+    await page.locator('#pass').fill(FB_PASS);
+
+    if (HEADLESS_MODE) {
+      throw new Error(
+        'Oh no!!, Facebook have a solid captcha verification, please disable HEADLESS_MODE=false for manual verification'
+      );
+    }
     try {
       console.debug(
         '[DEBUG] waiting for manual verification (5 minute timeout)'
@@ -53,6 +51,7 @@ export const getFacebookLogin = async (): Promise<Page> => {
         () =>
           !window.location.href.includes('login') &&
           !window.location.href.includes('two_factor') &&
+          !window.location.href.includes('auth') &&
           !window.location.href.includes('checkpoint'),
         { timeout: 300000 } // 5 minute timeout for manual verification
       );
@@ -68,5 +67,3 @@ export const getFacebookLogin = async (): Promise<Page> => {
   facebookPageInstance = page;
   return page;
 };
-
-

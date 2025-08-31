@@ -1,21 +1,21 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
+import { HEADLESS_MODE, PTR_SESSION_DIR } from './config';
 
 let browser: Browser | null = null;
 let page: Page | null = null;
 
 /**
- * 
+ *
  */
 export const getBrowser = async (): Promise<Browser> => {
   if (!browser) {
     browser = await puppeteer.launch({
-      headless: false,
-      userDataDir: './database/puppeteer-profile',
+      headless: HEADLESS_MODE,
+      userDataDir: PTR_SESSION_DIR,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-blink-features=AutomationControlled',
-        '--window-size=1280,800',
       ],
       defaultViewport: {
         width: 1280,
@@ -27,7 +27,7 @@ export const getBrowser = async (): Promise<Browser> => {
 };
 
 /**
- * 
+ *
  */
 export const getPage = async () => {
   if (!page) {
@@ -50,7 +50,7 @@ export const getPage = async () => {
 };
 
 /**
- * 
+ *
  */
 export const closeBrowser = async () => {
   if (browser) {

@@ -2,11 +2,11 @@ import Fastify from 'fastify';
 import autoload from '@fastify/autoload';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
-import fastifyMultipart from '@fastify/multipart';
 import cors from '@fastify/cors';
-
+import pkg from '../package.json';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import multipart from '@fastify/multipart';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -20,6 +20,13 @@ const app = Fastify({
   },
 });
 
+app.register(multipart, {
+  attachFieldsToBody: 'keyValues',
+  limits: {
+    fileSize: 1024 * 1024 * 20,
+  },
+});
+
 app.register(cors, {
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -30,9 +37,9 @@ app.register(cors, {
 app.register(swagger, {
   openapi: {
     info: {
-      title: 'API Base',
-      description: 'Documentación de la API base con Fastify y Swagger',
-      version: '1.0.0',
+      title: pkg.name,
+      description: 'Documentación de la API',
+      version: pkg.version,
     },
     servers: [{ url: 'http://localhost:3000' }],
   },
@@ -40,18 +47,6 @@ app.register(swagger, {
 
 app.register(swaggerUI, {
   routePrefix: '/docs',
-});
-
-app.register(fastifyMultipart, {
-  attachFieldsToBody: 'keyValues',
-  onFile: async (part: any) => {
-    part.value = {
-      filename: part.filename,
-      mimetype: part.mimetype,
-      encoding: part.encoding,
-      value: await part.toBuffer(),
-    };
-  },
 });
 
 // Rutas base (legacy)
@@ -63,8 +58,7 @@ app.register(autoload, {
 const start = async () => {
   try {
     await app.listen({ port: 3000, host: '0.0.0.0' });
-    console.log('Servidor iniciado en http://localhost:3000');
-    console.log('Swagger docs en http://localhost:3000/docs');
+    app.log.info('Swagger docs en http://localhost:3000/docs');
   } catch (err) {
     app.log.error(err);
     process.exit(1);
