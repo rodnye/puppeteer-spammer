@@ -1,0 +1,4 @@
+# it's not recommended to ignore lock files
+# but in this case, not including it causes less issues
+pnpm-lock.yaml
+node_modules/
