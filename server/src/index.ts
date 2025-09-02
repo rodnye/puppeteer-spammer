@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 import multipart, { ajvFilePlugin } from '@fastify/multipart';
 import { logger } from '@/services/core/logger';
 import { existsSync } from 'fs';
-import { UPLOADS_DIR } from './services/core/config';
+import { UPLOADS_DIR, PORT } from '@/services/core/config';
 import { mkdir } from 'fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,7 +57,7 @@ app.register(autoload, {
 
 const start = async () => {
   try {
-    await app.listen({ port: 3000, host: '0.0.0.0' });
+    await app.listen({ port: PORT, host: '0.0.0.0' });
     app.log.info('Swagger docs en http://localhost:3000/docs');
     if (!existsSync(UPLOADS_DIR)) await mkdir(UPLOADS_DIR, { recursive: true });
   } catch (err) {

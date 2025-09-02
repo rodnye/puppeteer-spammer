@@ -19,6 +19,7 @@ export const UPLOADS_DIR = join(ROOT_DIR, '/database/uploads');
 export const PTR_SESSION_DIR = join(ROOT_DIR, '/database/puppeteer-session');
 
 // env
+export const PORT = parseInt(process.env.PORT || '3000');
 export const HEADLESS_MODE = process.env.HEADLESS_MODE === 'true';
 export const FB_USER = process.env.FB_USER!;
 export const FB_PASS = process.env.FB_PASS!;
