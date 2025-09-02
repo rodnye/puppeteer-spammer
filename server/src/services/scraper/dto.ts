@@ -1,14 +1,23 @@
-import { IsOptional, IsString } from 'class-validator';
+import { Equals, IsArray, IsOptional, IsString } from 'class-validator';
 import { matchUser } from './utils';
 
 export class FbPostDto {
-  id: string;
+  @IsString()
+  postId: string;
+
+  @IsString()
   groupId: string;
+  
+  @IsOptional()
+  @IsArray()
   tags: string[] = [];
+
+  @IsOptional()
+  @IsString()
   desc: string = '';
 
   get url() {
-    return FbPostDto.makeUrl(this.groupId, this.id);
+    return FbPostDto.makeUrl(this.groupId, this.postId);
   }
 
   static makeUrl(groupId: string, postId: string) {
@@ -17,13 +26,21 @@ export class FbPostDto {
 }
 
 export class FbGroupDto {
-  id: string;
-  name: string | null;
-  posts: Record<string, FbPostDto>;
+  @IsString()
+  groupId: string;
+  
+  @IsOptional()
+  @IsString()
+  name: string | null = null;
+  
+  @IsArray()
+  postIds: string[] = [];
+  
+  @IsArray()
   tags: string[] = [];
 
   get url() {
-    return FbGroupDto.makeUrl(this.id);
+    return FbGroupDto.makeUrl(this.groupId);
   }
 
   static makeUrl(groupId: string) {

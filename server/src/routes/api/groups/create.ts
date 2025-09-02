@@ -1,8 +1,5 @@
-import { saveGroup } from '@/services/store/groups/save';
-import { FbGroupDto } from '@/services/facebook/dto';
 import { FastifyPluginAsync } from 'fastify';
-import { plainToInstance } from 'class-transformer';
-import { existsGroup } from '@/services/store/groups/get';
+import { queueManager } from '@/services/queue/manager';
 
 const attachGroupRoute: FastifyPluginAsync = async (app) => {
   app.post(
@@ -11,51 +8,32 @@ const attachGroupRoute: FastifyPluginAsync = async (app) => {
       schema: {
         body: {
           type: 'object',
-          required: ['id', 'name'],
+          required: ['groupId'],
           properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
+            groupId: { type: 'string' },
             tags: {
               type: 'array',
               items: { type: 'string' },
-              default: [],
             },
           },
         },
       },
     },
     async (request, reply) => {
-      try {
-        const body = request.body as {
-          id: string;
-          name: string;
-          tags: string[];
-        };
+      const body = request.body as {
+        groupId: string;
+        tags: string[];
+      };
 
-        reply.log.debug(`Saving group: ${body.name} (${body.id})`);
-        if (await existsGroup(body.id)) {
-          throw new Error('the group already exists');
-        }
-        await saveGroup(
-          plainToInstance(FbGroupDto, {
-            id: body.id,
-            name: body.name,
-            tags: body.tags,
-          })
-        );
+      const taskId = queueManager.addTask({
+        type: 'GROUP_CREATE',
+        data: body,
+      });
 
-        return reply.status(200).send({
-          success: true,
-          message: 'Group attached successfully',
-          groupId: body.id,
-        });
-      } catch (error) {
-        console.error('Error in /groups/attach endpoint:', error);
-        return reply.status(500).send({
-          error: 'Internal Server Error',
-          message: 'Failed to attach group',
-        });
-      }
+      return reply.status(200).send({
+        success: true,
+        taskId,
+      });
     }
   );
 };

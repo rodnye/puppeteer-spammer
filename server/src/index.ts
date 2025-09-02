@@ -6,22 +6,23 @@ import cors from '@fastify/cors';
 import pkg from '../package.json';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import multipart from '@fastify/multipart';
+import multipart, { ajvFilePlugin } from '@fastify/multipart';
+import { logger } from '@/services/core/logger';
+import { existsSync } from 'fs';
+import { UPLOADS_DIR } from './services/core/config';
+import { mkdir } from 'fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = Fastify({
-  logger: {
-    level: 'debug',
-    transport: {
-      target: '@fastify/one-line-logger',
-    },
+  loggerInstance: logger,
+  ajv: {
+    plugins: [ajvFilePlugin],
   },
 });
 
 app.register(multipart, {
-  attachFieldsToBody: 'keyValues',
   limits: {
     fileSize: 1024 * 1024 * 20,
   },
@@ -49,7 +50,6 @@ app.register(swaggerUI, {
   routePrefix: '/docs',
 });
 
-// Rutas base (legacy)
 app.register(autoload, {
   dir: join(__dirname, 'routes'),
   options: { prefix: '/' },
@@ -59,6 +59,7 @@ const start = async () => {
   try {
     await app.listen({ port: 3000, host: '0.0.0.0' });
     app.log.info('Swagger docs en http://localhost:3000/docs');
+    if (!existsSync(UPLOADS_DIR)) await mkdir(UPLOADS_DIR, { recursive: true });
   } catch (err) {
     app.log.error(err);
     process.exit(1);

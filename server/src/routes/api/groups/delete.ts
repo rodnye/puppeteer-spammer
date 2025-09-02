@@ -1,44 +1,41 @@
 import { deleteGroup } from '@/services/store/groups/delete';
 import { FastifyPluginAsync } from 'fastify';
-import { existsGroup } from '@/services/store/groups/get';
+import { existsGroup } from '@/services/store/groups/find';
+import { queueManager } from '@/services/queue/manager';
 
 const detachGroupRoute: FastifyPluginAsync = async (app) => {
   app.delete(
-    '/:groupId',
+    '/',
     {
       schema: {
-        params: {
+        body: {
           type: 'object',
-          required: ['groupId'],
+          required: ['groupIds'],
           properties: {
-            groupId: { type: 'string' },
+            groupIds: {
+              type: 'array',
+              items: { type: 'string' },
+            },
           },
         },
       },
     },
     async (request, reply) => {
+      const { groupIds } = request.body as {
+        groupIds: string[];
+      };
+
       try {
-        const params = request.params as {
-          groupId: string;
-        };
-
-        reply.log.debug(`Detaching group: ${params.groupId}`);
-
-        // Verificar si el grupo existe antes de intentar eliminarlo
-        if (!(await existsGroup(params.groupId))) {
-          return reply.status(404).send({
-            error: 'Not Found',
-            message: 'Group not found',
-          });
-        }
-
-        // Eliminar el grupo y todos sus posts asociados
-        await deleteGroup(params.groupId);
+        const taskId = queueManager.addTask({
+          type: 'GROUP_DELETE',
+          data: {
+            groupIds,
+          },
+        });
 
         return reply.status(200).send({
           success: true,
-          message: 'Group detached successfully',
-          groupId: params.groupId,
+          taskId,
         });
       } catch (error) {
         console.error('Error in /groups/detach endpoint:', error);

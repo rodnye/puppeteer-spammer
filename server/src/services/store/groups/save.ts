@@ -1,6 +1,5 @@
 import { getRedis } from '@/services/core/redis';
-import { FbGroupDto } from '@/services/facebook/dto';
-import { savePost } from '../posts/save';
+import { FbGroupDto } from '@/services/scraper/dto';
 import { getGroupRKey } from '../utils';
 
 /**
@@ -8,18 +7,12 @@ import { getGroupRKey } from '../utils';
  */
 export const saveGroup = async (group: FbGroupDto): Promise<void> => {
   const redis = await getRedis();
-  const groupKey = getGroupRKey(group.id);
+  const rkey = getGroupRKey(group.groupId);
 
-  await redis.hset(groupKey, {
-    id: group.id,
+  await redis.hset(rkey, {
+    groupId: group.groupId,
     name: group.name || '',
     tags: JSON.stringify(group.tags),
-    posts: JSON.stringify(Object.keys(group.posts || {})),
+    postIds: JSON.stringify(group.postIds),
   });
-
-  if (group.posts) {
-    for (const post of Object.values(group.posts)) {
-      await savePost(post);
-    }
-  }
 };

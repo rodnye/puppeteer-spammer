@@ -1,8 +1,7 @@
 import {
-  getAllGroups,
+  findAllGroups,
   findGroupsByTag,
-  countGroups,
-} from '@/services/store/groups/get';
+} from '@/services/store/groups/find';
 import { instanceToPlain } from 'class-transformer';
 import { FastifyPluginAsync } from 'fastify';
 
@@ -15,7 +14,6 @@ const listGroupsRoute: FastifyPluginAsync = async (app) => {
           type: 'object',
           properties: {
             tag: { type: 'string' },
-            countOnly: { type: 'boolean', default: false },
           },
         },
       },
@@ -24,20 +22,9 @@ const listGroupsRoute: FastifyPluginAsync = async (app) => {
       try {
         const query = request.query as {
           tag?: string;
-          countOnly?: boolean;
         };
 
         reply.log.debug('Listing groups');
-
-        // Si solo se solicita el conteo
-        if (query.countOnly) {
-          const totalCount = await countGroups();
-          return reply.status(200).send({
-            success: true,
-            count: totalCount,
-            message: 'Group count retrieved successfully',
-          });
-        }
 
         // Si se filtra por tag
         if (query.tag) {
@@ -45,21 +32,21 @@ const listGroupsRoute: FastifyPluginAsync = async (app) => {
           const groups = await findGroupsByTag(query.tag);
           return reply.status(200).send({
             success: true,
-            groups: groups.map(g => instanceToPlain(g)),
+            message: 'Groups filtered by tag retrieved successfully',
             count: groups.length,
             filteredBy: query.tag,
-            message: 'Groups filtered by tag retrieved successfully',
+            groups: groups.map(g => instanceToPlain(g)),
           });
         }
 
-        // Listar todos los grupos
-        const allGroups = await getAllGroups();
+        const allGroups = await findAllGroups();
         return reply.status(200).send({
           success: true,
-          groups: allGroups,
-          count: allGroups.length,
           message: 'All groups retrieved successfully',
+          count: allGroups.length,
+          groups: allGroups.map(g => instanceToPlain(g)),
         });
+
       } catch (error) {
         console.error('Error in /groups endpoint:', error);
         return reply.status(500).send({

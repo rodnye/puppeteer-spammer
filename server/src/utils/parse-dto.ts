@@ -1,12 +1,12 @@
-import { validate } from 'class-validator';
+import { validate, validateSync } from 'class-validator';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 
-export async function parseDto<T extends object>(
+export function parseDto<T extends object>(
   DtoClass: ClassConstructor<T>,
   plainObject: any
-): Promise<T> {
+): T {
   const dto = plainToInstance(DtoClass, plainObject);
-  const errors = await validate(dto);
+  const errors = validateSync(dto);
 
   if (errors.length > 0) {
     throw errors;

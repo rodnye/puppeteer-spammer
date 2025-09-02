@@ -14,12 +14,12 @@ export const deletePost = async (
   await redis.del(postKey);
 
   const groupKey = getGroupRKey(groupId);
-  const groupData = await redis.hgetall(groupKey);
+  const rawPostIds = await redis.hget(groupKey, 'postIds');
 
-  if (groupData && groupData.posts) {
-    const postIds = JSON.parse(groupData.posts) as string[];
-    const updatedPostIds = postIds.filter((id) => id !== postId);
+  if (rawPostIds) {
+    const postIds = JSON.parse(rawPostIds) as string[];
+    postIds.splice(postIds.indexOf(postId), 1);
 
-    await redis.hset(groupKey, 'posts', JSON.stringify(updatedPostIds));
+    await redis.hset(groupKey, 'postIds', JSON.stringify(postIds));
   }
 };

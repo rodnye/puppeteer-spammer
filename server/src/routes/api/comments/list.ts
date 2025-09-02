@@ -1,7 +1,7 @@
-import { getCommentsFromFb } from '@/services/facebook/comments/get';
-import { FbPostDto } from '@/services/facebook/dto';
-import { existsPost } from '@/services/store/posts/get';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { getCommentsFromFb } from '@/services/scraper/comments/get';
+import { FbPostDto } from '@/services/scraper/dto';
+import { existsPost } from '@/services/store/posts/find';
+import { parseDto } from '@/utils/parse-dto';
 import { FastifyPluginAsync } from 'fastify';
 
 const listCommentsRoute: FastifyPluginAsync = async (app) => {
@@ -30,8 +30,8 @@ const listCommentsRoute: FastifyPluginAsync = async (app) => {
         if (!(await existsPost(params.groupId, params.postId))) {
           throw new Error('Post not found');
         }
-        const post = plainToInstance(FbPostDto, {
-          id: params.postId,
+        const post = parseDto(FbPostDto, {
+          postId: params.postId,
           groupId: params.groupId,
         });
 
