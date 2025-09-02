@@ -12,7 +12,6 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
     "baseUrl": "./",
-    "outDir": "./dist",
     "paths": {
       "@/*": ["src/*"]
     },
