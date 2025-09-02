@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
+    "preinstall": "npm i pnpm",
     "postinstall": "pnpm --filter ./server install",
     "dev": "pnpm --filter ./server dev",
     "build": "pnpm --filter ./server build",
