@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ for (const envVar of requiredEnv) {
 }
 
 // directories
-export const ROOT_DIR = join(import.meta.dirname, '../../..');
+export const ROOT_DIR = join(dirname(fileURLToPath(import.meta.url)), '../..');
 export const UPLOADS_DIR = join(ROOT_DIR, '/database/uploads');
 export const PTR_SESSION_DIR = join(ROOT_DIR, '/database/puppeteer-session');
 

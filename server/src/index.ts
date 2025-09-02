@@ -4,16 +4,12 @@ import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import cors from '@fastify/cors';
 import pkg from '../package.json';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import multipart, { ajvFilePlugin } from '@fastify/multipart';
 import { logger } from '@/services/core/logger';
 import { existsSync } from 'fs';
-import { UPLOADS_DIR, PORT } from '@/services/core/config';
+import { UPLOADS_DIR, PORT, ROOT_DIR } from '@/services/core/config';
 import { mkdir } from 'fs/promises';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const app = Fastify({
   loggerInstance: logger,
@@ -51,7 +47,7 @@ app.register(swaggerUI, {
 });
 
 app.register(autoload, {
-  dir: join(__dirname, 'routes'),
+  dir: join(ROOT_DIR, 'routes'),
   options: { prefix: '/' },
 });
 
