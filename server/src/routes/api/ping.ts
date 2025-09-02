@@ -1,8 +1,8 @@
 import { FastifyPluginAsync } from 'fastify';
 
 const pingRoute: FastifyPluginAsync = async (app) => {
-  app.get('/ping', async () => {
-    return 'pong!';
+  app.get('/ping', async (_, reply) => {
+    return reply.send({ message: 'pong!' });
   });
 };
 

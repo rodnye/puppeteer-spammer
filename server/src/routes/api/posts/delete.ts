@@ -1,7 +1,4 @@
 import { queueManager } from '@/services/queue/manager';
-import { deletePostFromFb } from '@/services/scraper/posts/delete';
-import { deletePost } from '@/services/store/posts/delete';
-import { existsPost } from '@/services/store/posts/find';
 import { FastifyPluginAsync } from 'fastify';
 
 const deletePostRoute: FastifyPluginAsync = async (app) => {

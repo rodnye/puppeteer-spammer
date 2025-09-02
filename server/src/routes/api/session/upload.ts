@@ -7,7 +7,7 @@ import { mkdir, readdir, rm, unlink } from 'node:fs/promises';
 import { instanceOfNodeError } from '@/utils/error-guards';
 import { PTR_SESSION_DIR, UPLOADS_DIR } from '@/services/core/config';
 
-const uploadSessionRoute: FastifyPluginAsync = async (app): Promise<void> => {
+const uploadSessionRoute: FastifyPluginAsync = async (app) => {
   app.post('/', async (request, reply) => {
     try {
       app.log.debug('Waiting zip file');

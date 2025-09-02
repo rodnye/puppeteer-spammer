@@ -1,11 +1,4 @@
 import { FastifyPluginAsync } from 'fastify';
-import { unlink } from 'fs/promises';
-import path from 'path';
-import { UPLOADS_DIR } from '@/services/core/config';
-import { randomUUID } from 'crypto';
-import { processPostCreate } from '@/services/queue/process/posts/create';
-import { pipeline } from 'stream/promises';
-import { createWriteStream } from 'fs';
 import { parseMultipartMiddleware } from '@/middlewares/parseMultipart';
 import { queueManager } from '@/services/queue/manager';
 
