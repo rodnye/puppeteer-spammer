@@ -1,5 +1,5 @@
 import { queueManager } from '@/services/queue/manager';
-import { instanceToInstance, instanceToPlain } from 'class-transformer';
+import { instanceToPlain } from 'class-transformer';
 import { FastifyPluginAsync } from 'fastify';
 
 const taskRoute: FastifyPluginAsync = async (app) => {
@@ -16,9 +16,9 @@ const taskRoute: FastifyPluginAsync = async (app) => {
     reply.send({
       status: true,
       count,
-      message: 'Remove completed tasks'
-    })
-  })
+      message: 'Remove completed tasks',
+    });
+  });
 
   app.get(
     '/tasks/:taskId',
