@@ -53,13 +53,16 @@ app.register(swaggerUI, {
 
 app.register(autoload, {
   dir: join(ROOT_DIR, 'src/routes'),
+  forceESM: true,
   options: { prefix: '/' },
 });
 
 const start = async () => {
   try {
+    await app.ready();
     await app.listen({ port: PORT, host: '0.0.0.0' });
     app.log.info('Swagger docs: ' + SERVER_URL + '/docs');
+    
     if (!existsSync(UPLOADS_DIR)) await mkdir(UPLOADS_DIR, { recursive: true });
   } catch (err) {
     app.log.error(err);

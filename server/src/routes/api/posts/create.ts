@@ -51,8 +51,12 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
     '/',
     {
       // ignore default validation
-      validatorCompiler: () => () => true,
+      attachValidation: true,
+
+      // parse with my custom validation
       preHandler: [parseMultipartMiddleware<ParsedSchema>(schema)],
+      
+      // schema for swagger ui
       schema,
     },
     async (request, reply) => {
