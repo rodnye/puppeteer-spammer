@@ -8,7 +8,12 @@ import { join } from 'path';
 import multipart, { ajvFilePlugin } from '@fastify/multipart';
 import { logger } from '@/services/core/logger';
 import { existsSync } from 'fs';
-import { UPLOADS_DIR, PORT, ROOT_DIR } from '@/services/core/config';
+import {
+  UPLOADS_DIR,
+  PORT,
+  ROOT_DIR,
+  SERVER_URL,
+} from '@/services/core/config';
 import { mkdir } from 'fs/promises';
 
 const app = Fastify({
@@ -38,7 +43,7 @@ app.register(swagger, {
       description: 'Documentación de la API',
       version: pkg.version,
     },
-    servers: [{ url: 'http://localhost:3000' }],
+    servers: [{ url: SERVER_URL }],
   },
 });
 
@@ -47,14 +52,14 @@ app.register(swaggerUI, {
 });
 
 app.register(autoload, {
-  dir: join(ROOT_DIR, 'routes'),
+  dir: join(ROOT_DIR, 'src/routes'),
   options: { prefix: '/' },
 });
 
 const start = async () => {
   try {
     await app.listen({ port: PORT, host: '0.0.0.0' });
-    app.log.info('Swagger docs en http://localhost:3000/docs');
+    app.log.info('Swagger docs: ' + SERVER_URL + '/docs');
     if (!existsSync(UPLOADS_DIR)) await mkdir(UPLOADS_DIR, { recursive: true });
   } catch (err) {
     app.log.error(err);

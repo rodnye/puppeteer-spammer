@@ -16,7 +16,7 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
     consumes: ['multipart/form-data'],
     body: {
       type: 'object',
-      required: ['groupIds', 'message'] as const,
+      required: ['groupIds', 'message'],
       properties: {
         groupIds: {
           type: 'array',
