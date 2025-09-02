@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts src/**",
-    "build": "echo 'Nothing to build...'",
+    "postinstall": "pnpm dlx puppeteer browsers install chrome",
+    "build": "echo 'Nothing to build.'",
     "start": "tsx src/index.ts"
   },
   "devDependencies": {
