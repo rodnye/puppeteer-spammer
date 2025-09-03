@@ -1,11 +1,6 @@
-import extract from 'extract-zip';
-import path from 'node:path';
 import { FastifyPluginAsync } from 'fastify';
-import { createWriteStream, existsSync } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
-import { mkdir, readdir, rm, unlink } from 'node:fs/promises';
 import { instanceOfNodeError } from '@/utils/error-guards';
-import { PTR_SESSION_DIR, UPLOADS_DIR } from '@/services/core/config';
+import { extractSessionFromStream } from '@/services/core/browser';
 
 const uploadSessionRoute: FastifyPluginAsync = async (app) => {
   app.post(
@@ -45,31 +40,13 @@ const uploadSessionRoute: FastifyPluginAsync = async (app) => {
           return reply.status(400).send({ error: 'File must by a zip' });
         }
 
-        try {
-          if (existsSync(PTR_SESSION_DIR)) {
-            await rm(PTR_SESSION_DIR, { recursive: true, force: true });
-          }
-          if (!existsSync(UPLOADS_DIR))
-            await mkdir(UPLOADS_DIR, { recursive: true });
-        } catch (error) {
-          if (!instanceOfNodeError(error) || error.code !== 'ENOENT')
-            throw error;
-        }
-
-        // start procesing zip...
-        const tempZipPath = path.join(UPLOADS_DIR, `temp-${Date.now()}.zip`);
-
-        await pipeline(file.file, createWriteStream(tempZipPath));
-        await extract(tempZipPath, {
-          dir: path.resolve(PTR_SESSION_DIR),
-        });
-
-        await unlink(tempZipPath);
+        // Usamos la función común para extraer el stream
+        const extractedFiles = await extractSessionFromStream(file.file);
 
         return reply.send({
           status: true,
           message: 'Success!',
-          extractedFiles: await readdir(PTR_SESSION_DIR),
+          extractedFiles,
         });
       } catch (error) {
         app.log.error(error);

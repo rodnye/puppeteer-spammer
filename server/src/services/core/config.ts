@@ -18,6 +18,7 @@ for (const envVar of requiredEnv) {
 export const ROOT_DIR = join(dirname(fileURLToPath(import.meta.url)), '../../../');
 export const UPLOADS_DIR = join(ROOT_DIR, '/database/uploads');
 export const PTR_SESSION_DIR = join(ROOT_DIR, '/database/puppeteer-session');
+export const PTR_SESSION_URL = process.env.PTR_SESSION_URL || null;
 
 // env
 export const PORT = parseInt(process.env.PORT || '3000');
