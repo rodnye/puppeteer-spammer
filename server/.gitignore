@@ -3,4 +3,5 @@ dist/
 database/uploads
 database/puppeteer-session
 .env*
+.cache
 !.env.example
