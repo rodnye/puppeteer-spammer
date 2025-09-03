@@ -2,15 +2,34 @@ name: Deploy to EvenNode
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: evennode
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Build for upload puppeteer cache (Evennode ignore them)
+        run: |
+          pnpm install
+          pnpm build 
+
       - name: EvenNode Deploy
         uses: rodnye/evennode-deploy-action@v1
         with:
@@ -19,4 +38,4 @@ jobs:
           dot_env: ${{ secrets.DOT_ENV }}
           git_name: ${{ secrets.GIT_NAME }}
           git_email: ${{ secrets.GIT_EMAIL }}
-          pre_commit_command: 'mv .env server && git add server/.env -f'
+          pre_commit_command: 'mv .env server && git add server/.cache server/.env -f'
