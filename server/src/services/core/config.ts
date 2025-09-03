@@ -15,14 +15,16 @@ for (const envVar of requiredEnv) {
 }
 
 // directories
-export const ROOT_DIR = join(dirname(fileURLToPath(import.meta.url)), '../../../');
-export const UPLOADS_DIR = join(ROOT_DIR, '/database/uploads');
-export const PTR_SESSION_DIR = join(ROOT_DIR, '/database/puppeteer-session');
-export const PTR_SESSION_URL = process.env.PTR_SESSION_URL || null;
+export const ROOT_DIR = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../../'
+);
+export const UPLOADS_DIR = join(ROOT_DIR, 'database', 'uploads');
+export const PTR_SESSION_DIR = join(ROOT_DIR, 'database', 'puppeteer-session');
+export const PTR_CACHE_DIR = join(ROOT_DIR, '.cache', 'puppeteer');
 
 // env
 export const PORT = parseInt(process.env.PORT || '3000');
-export const SERVER_URL = process.env.SERVER_URL || `http://localhost:${PORT}`;
 
 export const HEADLESS_MODE = process.env.HEADLESS_MODE === 'true';
 export const FB_USER = process.env.FB_USER!;
@@ -33,3 +35,6 @@ export const REDIS_PORT = process.env.REDIS_PORT
   : 6379;
 export const REDIS_USER = process.env.REDIS_USER;
 export const REDIS_PASS = process.env.REDIS_PASS;
+
+export const SERVER_URL = process.env.SERVER_URL || `http://localhost:${PORT}`;
+export const PTR_SESSION_URL = process.env.PTR_SESSION_URL || null;
