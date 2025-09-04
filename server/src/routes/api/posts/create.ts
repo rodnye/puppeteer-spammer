@@ -11,8 +11,7 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
     files?: string[];
   };
   const schema = {
-    description:
-      'Publish a post on the groups',
+    description: 'Publish a post on the groups',
     consumes: ['multipart/form-data'],
     body: {
       type: 'object',
@@ -45,6 +44,16 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
         },
       },
     },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          taskId: { type: 'string' },
+        },
+        required: ['success', 'taskId'],
+      },
+    },
   };
 
   app.post(
@@ -55,7 +64,7 @@ const createPostRoute: FastifyPluginAsync = async (app) => {
 
       // parse with my custom validation
       preHandler: [parseMultipartMiddleware<ParsedSchema>(schema)],
-      
+
       // schema for swagger ui
       schema,
     },

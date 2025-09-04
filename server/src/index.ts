@@ -15,6 +15,7 @@ import {
   SERVER_URL,
 } from '@/services/core/config';
 import { mkdir } from 'fs/promises';
+import { schemas } from './routes/schemas/schemas';
 
 const app = Fastify({
   loggerInstance: logger,
@@ -51,10 +52,14 @@ app.register(swaggerUI, {
   routePrefix: '/docs',
 });
 
+for (const [name, schema] of Object.entries(schemas)) {
+   app.addSchema({ $id: name, ...schema });
+}
+
 app.register(autoload, {
-  dir: join(ROOT_DIR, 'src/routes'),
+  dir: join(ROOT_DIR, 'src/routes/api'),
   forceESM: true,
-  options: { prefix: '/' },
+  options: { prefix: '/api' },
 });
 
 const start = async () => {

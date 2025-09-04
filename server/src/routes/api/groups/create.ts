@@ -17,6 +17,16 @@ const attachGroupRoute: FastifyPluginAsync = async (app) => {
             },
           },
         },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              taskId: { type: 'string' },
+            },
+            required: ['success', 'taskId'],
+          },
+        },
       },
     },
     async (request, reply) => {
@@ -24,12 +34,10 @@ const attachGroupRoute: FastifyPluginAsync = async (app) => {
         groupId: string;
         tags: string[];
       };
-
       const taskId = queueManager.addTask({
         type: 'GROUP_CREATE',
         data: body,
       });
-
       return reply.status(200).send({
         success: true,
         taskId,

@@ -10,10 +10,21 @@ const deletePostRoute: FastifyPluginAsync = async (app) => {
           type: 'array',
           items: {
             type: 'object',
+            required: ['groupId', 'postId'],
             properties: {
               groupId: { type: 'string' },
               postId: { type: 'string' },
             },
+          },
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              taskId: { type: 'string' },
+            },
+            required: ['success', 'taskId'],
           },
         },
       },
