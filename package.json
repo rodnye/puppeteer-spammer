@@ -2,14 +2,19 @@
   "name": "puppeteer-spammer",
   "version": "0.0.0",
   "description": "",
+  "type": "module",
   "scripts": {
     "preinstall": "npm i pnpm",
-    "postinstall": "pnpm --filter ./server install",
-    "dev": "pnpm --filter ./server dev",
-    "build": "pnpm --filter ./server build",
+    "postinstall": "concurrently 'pnpm --filter ./server install' 'pnpm --filter ./client install'",
+    "dev": "concurrently 'pnpm --filter ./server dev' 'pnpm --filter ./client dev'",
+    "build": "concurrently 'pnpm --filter ./server build' 'pnpm --filter ./client build' && node scripts/copy-client.js",
     "start": "pnpm --filter ./server start"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.2.1",
+    "fs-extra": "^11.2.0"
+  }
 }
