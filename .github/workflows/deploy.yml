@@ -27,7 +27,7 @@ jobs:
 
       - name: Add .env in client folder
         run: |
-          echo "${{ secrets.DOT_ENV_CLIENT }}" > ./client
+          echo "${{ secrets.DOT_ENV_CLIENT }}" > ./client/.env
 
       - name: Build for upload puppeteer cache (Evennode ignore them)
         run: |
