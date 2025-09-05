@@ -4,7 +4,6 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "preinstall": "npm i pnpm",
     "postinstall": "concurrently 'pnpm --filter ./server install' 'pnpm --filter ./client install'",
     "dev": "concurrently 'pnpm --filter ./server dev' 'pnpm --filter ./client dev'",
     "build": "concurrently 'pnpm --filter ./server build' 'pnpm --filter ./client build' && node scripts/copy-client.js",
@@ -15,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "concurrently": "^9.2.1",
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.2.0",
+    "pnpm": "^10.15.1"
   }
 }
