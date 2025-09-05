@@ -17,6 +17,59 @@ const listCommentsRoute: FastifyPluginAsync = async (app) => {
             postId: { type: 'string' },
           },
         },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              comments: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    simpleDate: { type: 'string' },
+                    author: { type: 'string' },
+                    authorUrl: { type: 'string' },
+                    comment: { type: 'string' },
+                    commentUrl: { type: 'string' },
+                  },
+                  required: [
+                    'simpleDate',
+                    'author',
+                    'authorUrl',
+                    'comment',
+                    'commentUrl',
+                  ],
+                },
+              },
+              count: { type: 'number' },
+              postUrl: { type: 'string' },
+              message: { type: 'string' },
+            },
+            required: ['success', 'comments', 'count', 'postUrl', 'message'],
+          },
+          404: {
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+            required: ['error'],
+          },
+          408: {
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+            required: ['error'],
+          },
+          500: {
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+            required: ['error'],
+          },
+        },
       },
     },
     async (request, reply) => {

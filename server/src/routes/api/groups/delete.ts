@@ -18,13 +18,30 @@ const detachGroupRoute: FastifyPluginAsync = async (app) => {
             },
           },
         },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              taskId: { type: 'string' },
+            },
+            required: ['success', 'taskId'],
+          },
+          500: {
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+            required: ['error', 'message'],
+          },
+        },
       },
     },
     async (request, reply) => {
       const { groupIds } = request.body as {
         groupIds: string[];
       };
-
       try {
         const taskId = queueManager.addTask({
           type: 'GROUP_DELETE',
@@ -32,7 +49,6 @@ const detachGroupRoute: FastifyPluginAsync = async (app) => {
             groupIds,
           },
         });
-
         return reply.status(200).send({
           success: true,
           taskId,

@@ -3,18 +3,22 @@ import autoload from '@fastify/autoload';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import cors from '@fastify/cors';
-import pkg from '../package.json';
-import { join } from 'path';
 import multipart, { ajvFilePlugin } from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
+
+import { join } from 'node:path';
+import { existsSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
+
+import pkg from '../package.json';
 import { logger } from '@/services/core/logger';
-import { existsSync } from 'fs';
 import {
   UPLOADS_DIR,
   PORT,
   ROOT_DIR,
   SERVER_URL,
 } from '@/services/core/config';
-import { mkdir } from 'fs/promises';
+import { schemas } from './routes/schemas/schemas';
 
 const app = Fastify({
   loggerInstance: logger,
@@ -51,10 +55,31 @@ app.register(swaggerUI, {
   routePrefix: '/docs',
 });
 
+for (const [name, schema] of Object.entries(schemas)) {
+  app.addSchema({ $id: name, ...schema });
+}
+
 app.register(autoload, {
-  dir: join(ROOT_DIR, 'src/routes'),
+  dir: join(ROOT_DIR, 'src/routes/api'),
   forceESM: true,
-  options: { prefix: '/' },
+  options: { prefix: '/api' },
+});
+
+app.register(fastifyStatic, {
+  root: join(ROOT_DIR, 'public/dist'),
+  prefix: '/',
+  index: 'index.html',
+  list: false,
+  redirect: false,
+  decorateReply: true,
+});
+
+app.setNotFoundHandler((request, reply) => {
+  if (request.url.startsWith('/api') || request.url.startsWith('/docs')) {
+    return reply.status(404).send({ error: 'Not Found' });
+  }
+
+  return reply.sendFile('index.html');
 });
 
 const start = async () => {
@@ -62,7 +87,7 @@ const start = async () => {
     await app.ready();
     await app.listen({ port: PORT, host: '0.0.0.0' });
     app.log.info('Swagger docs: ' + SERVER_URL + '/docs');
-    
+
     if (!existsSync(UPLOADS_DIR)) await mkdir(UPLOADS_DIR, { recursive: true });
   } catch (err) {
     app.log.error(err);

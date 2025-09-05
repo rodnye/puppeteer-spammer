@@ -20,6 +20,9 @@ importers:
       '@fastify/one-line-logger':
         specifier: ^2.0.2
         version: 2.0.2
+      '@fastify/static':
+        specifier: ^8.2.0
+        version: 8.2.0
       '@fastify/swagger':
         specifier: ^9.5.1
         version: 9.5.1
