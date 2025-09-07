@@ -1,10 +1,9 @@
-const { join } = require('path');
+require('dotenv').config();
 
 /**
  * @type {import("puppeteer").Configuration}
  */
 module.exports = {
-  cacheDirectory: join(__dirname, '.cache', 'puppeteer'),
   chrome: {
     skipDownload: false,
   },

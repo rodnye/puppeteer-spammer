@@ -48,6 +48,6 @@ export const schemas = {
         items: { type: 'string' },
       },
     },
-    required: ['id', 'name', 'tags', 'postIds'],
+    required: ['groupId', 'name', 'tags', 'postIds'],
   },
 };

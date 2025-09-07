@@ -9,7 +9,7 @@ import { pipeline } from 'stream/promises';
  * Fastify's built-in multipart parser didn't quite meet my needs,
  * This custom middleware that transforms multipart data
  * into properly typed objects based on your schema definition.
- * 
+ *
  * Use this in preHandler hook
  *
  * @author Rodny Estrada
@@ -42,9 +42,7 @@ export const parseMultipartMiddleware =
           } else if (prop.type === 'array') {
             const type = prop.items?.type;
             if (type === 'string' || type === 'number') {
-              body[name] = (part.value as string)
-                .split(',')
-                .map((v) => (type === 'string' ? v : parseFloat(v))) as T[K];
+              body[name] = JSON.parse(part.value as string);
             } else {
               throw new Error(
                 `Unsupported array item type '${type}' for field '${name}'`
@@ -62,7 +60,7 @@ export const parseMultipartMiddleware =
           };
 
           if (prop.type === 'array') {
-            if (prop.items?.isFile === true) {
+            if (prop.items?.format === 'binary') {
               if (!body[name]) body[name] = [] as T[K];
               (body[name] as unknown[]).push(await saveUpload());
             } else {

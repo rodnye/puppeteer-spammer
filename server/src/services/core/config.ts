@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { dirname, join } from 'node:path';
+import { dirname, isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 dotenv.config();
@@ -21,7 +21,12 @@ export const ROOT_DIR = join(
 );
 export const UPLOADS_DIR = join(ROOT_DIR, 'database', 'uploads');
 export const PTR_SESSION_DIR = join(ROOT_DIR, 'database', 'puppeteer-session');
-export const PTR_CACHE_DIR = join(ROOT_DIR, '.cache', 'puppeteer');
+export const PTR_EXEC_DIR = (() => {
+  const p = process.env.PTR_EXEC_DIR;
+  if (!p) return;
+  if (isAbsolute(p)) return p;
+  return join(ROOT_DIR, p);
+})();
 
 // env
 export const PORT = parseInt(process.env.PORT || '3000');

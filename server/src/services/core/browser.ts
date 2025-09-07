@@ -5,7 +5,7 @@ import { writeFile,  readFile, rm, unlink, } from 'node:fs/promises';
 import { existsSync, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import { logger } from './logger';
-import { HEADLESS_MODE, PTR_CACHE_DIR, PTR_SESSION_DIR, PTR_SESSION_URL, UPLOADS_DIR } from './config';
+import { HEADLESS_MODE,PTR_EXEC_DIR,PTR_SESSION_DIR, PTR_SESSION_URL, UPLOADS_DIR } from './config';
 import { downloadFile } from '@/utils/download';
 import { Readable } from 'node:stream';
 
@@ -28,7 +28,7 @@ export const getBrowser = async (): Promise<Browser> => {
     browser = await puppeteer.launch({
       headless: HEADLESS_MODE,
       userDataDir: PTR_SESSION_DIR,
-      executablePath: join(PTR_CACHE_DIR, 'chrome-headless-shell/linux-139.0.7258.154/chrome-headless-shell-linux64/chrome-headless-shell'),
+      executablePath: PTR_EXEC_DIR,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
