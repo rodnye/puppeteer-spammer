@@ -126,11 +126,17 @@ const taskRoute: FastifyPluginAsync = async (app) => {
     },
     async (req, reply) => {
       const { taskId } = req.params as { taskId: string };
+
       const task = queueManager.getTask(taskId);
       if (!task) return reply.status(404).send({ error: 'Task not found' });
       reply.status(200).send({
         status: true,
-        task: instanceToPlain(task),
+        task: {
+          id: task.id,
+          data: task.data,
+          result: task.result,
+          error: task.error,
+        },
       });
     }
   );

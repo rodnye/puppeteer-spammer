@@ -50,4 +50,22 @@ export const schemas = {
     },
     required: ['groupId', 'name', 'tags', 'postIds'],
   },
+  Post: {
+    id: 'Post',
+    type: 'object',
+    properties: {
+      postId: { type: 'string' },
+      groupId: { type: 'string' },
+      tags: {
+        type: 'array',
+        items: { type: 'string' },
+        default: [],
+      },
+      desc: {
+        type: 'string',
+        default: '',
+      },
+    },
+    required: ['postId', 'groupId'],
+  },
 };

@@ -4,6 +4,7 @@ import { getPostRKey, POST_KEY_PREFIX } from '../utils';
 import { findGroup } from '../groups/find';
 import { parseDto } from '@/utils/parse-dto';
 import { RedisKey } from 'ioredis';
+import { postsCache } from './_cache';
 
 /**
  *
@@ -12,45 +13,62 @@ export const findPost = async (groupId: string, postId: string) =>
   findPostByRKey(getPostRKey(groupId, postId));
 
 /**
- *
+ * 
  */
 export const findPostByRKey = async (rkey: RedisKey) => {
+  const cached = postsCache.get(rkey);
+  if (cached) return cached;
+
   const redis = await getRedis();
   const rawPost = await redis.hgetall(rkey);
   if (!rawPost || Object.keys(rawPost).length === 0) {
     return null;
   }
 
-  return parseDto(FbPostDto, {
+  const dto = parseDto(FbPostDto, {
     postId: rawPost.postId,
     groupId: rawPost.groupId,
     tags: JSON.parse(rawPost.tags || '[]'),
     desc: rawPost.desc,
   });
+  postsCache.set(rkey, dto);
+  return dto;
 };
 
-/**
- * O(n) process, warning!!
- */
-export const findPostsByTag = async (tag: string): Promise<FbPostDto[]> => {
+export const findPostsByTag = async (
+  tag?: string,
+  pageIndex = 0,
+  pageSize = 10
+) => {
   const redis = await getRedis();
   const rkeys = await redis.keys(`${POST_KEY_PREFIX}:*`);
   const posts: FbPostDto[] = [];
 
   for (const rkey of rkeys) {
     const post = (await findPostByRKey(rkey))!;
-    if (post.tags.includes(tag)) {
+    if (!tag || post.tags.includes(tag)) {
       posts.push(post);
     }
   }
 
-  return posts;
+  const startIndex = pageIndex * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedPosts = posts.slice(startIndex, endIndex);
+  const pageCount = Math.ceil(posts.length / pageSize);
+
+  return {
+    posts: paginatedPosts,
+    pageIndex,
+    pageCount,
+    hasNext: pageIndex < pageCount - 1,
+    hasPrev: pageIndex > 0,
+  };
 };
 
 export const findPostsByGroup = async (groupId: string) => {
   const group = await findGroup(groupId);
   const posts: FbPostDto[] = [];
-  
+
   if (group)
     for (const postId of group.postIds)
       posts.push((await findPost(groupId, postId))!);

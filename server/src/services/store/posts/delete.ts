@@ -1,5 +1,7 @@
 import { getRedis } from '@/services/core/redis';
 import { getPostRKey, getGroupRKey } from '../utils';
+import { findPostByRKey } from './find';
+import { postsCache } from './_cache';
 
 /**
  *
@@ -12,6 +14,7 @@ export const deletePost = async (
   const postKey = getPostRKey(groupId, postId);
 
   await redis.del(postKey);
+  postsCache.delete(postKey);
 
   const groupKey = getGroupRKey(groupId);
   const rawPostIds = await redis.hget(groupKey, 'postIds');
