@@ -6,10 +6,12 @@ import TaskDetail from './pages/TaskDetails';
 import GroupManagement from './pages/GroupManagement';
 import PostManagement from './pages/PostManagement';
 import SessionUpload from './pages/SessionUpload';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster position='bottom-right' />
       <Navbar />
       <main className="container mx-auto px-4 py-6">
         <Switch>

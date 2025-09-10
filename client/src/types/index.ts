@@ -17,6 +17,13 @@ export interface Group {
   postIds: string[];
 }
 
+export interface Post {
+  postId: string;
+  groupId: string;
+  tags: string[];
+  desc: string;
+}
+
 export interface Comment {
   simpleDate: string;
   author: string;
