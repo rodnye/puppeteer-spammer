@@ -3,12 +3,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { logger } from '@/services/core/logger';
 import { processTask } from './process/processor';
 import EventEmitter from 'events';
+import { closeBrowser } from '../core/browser';
 
 export class QueueManager extends EventEmitter<ProcessEventMap> {
   private pendingTasks: QueueTask[] = [];
   private processingTasks: Map<string, QueueTask> = new Map();
   private completedTasks: Map<string, QueueTask> = new Map();
   private isProcessing = false;
+
+  private inactiveTimeout: NodeJS.Timeout | null;
 
   constructor() {
     super();
@@ -66,6 +69,7 @@ export class QueueManager extends EventEmitter<ProcessEventMap> {
     if (this.isProcessing) return;
 
     this.isProcessing = true;
+    if (this.inactiveTimeout) clearTimeout(this.inactiveTimeout);
 
     while (this.pendingTasks.length > 0) {
       const task = this.pendingTasks.shift()!;
@@ -120,6 +124,7 @@ export class QueueManager extends EventEmitter<ProcessEventMap> {
     }
 
     this.isProcessing = false;
+    this.inactiveTimeout = setTimeout(() => closeBrowser(), 1000 * 60 * 20);
   }
 
   /**
