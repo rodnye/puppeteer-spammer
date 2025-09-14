@@ -42,8 +42,6 @@ export const url2FbGroup = async (
 
     // remove the "(1)" at the start and "| Facebook" at the end
     name = title.replace(/(^\(\d+?\)|\| Facebook$)/g, '').trim();
-
-    await page.close();
   }
 
   return parseDto(FbGroupDto, {
