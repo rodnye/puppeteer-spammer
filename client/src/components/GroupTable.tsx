@@ -75,8 +75,11 @@ const GroupTable = ({
   const [rowSelection, setRowSelection] = useState({});
 
   const selectedGroups = useMemo(() => {
-    const selectedRowIds = Object.keys(rowSelection);
-    return data.filter((_, index) => selectedRowIds.includes(index.toString()));
+    const selectedGroups: Group[] = [];
+    for (const index of Object.keys(rowSelection)) {
+      selectedGroups.push(data[Number(index)]);
+    }
+    return selectedGroups;
   }, [rowSelection, data]);
 
   useEffect(() => {

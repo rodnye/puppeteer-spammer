@@ -22,11 +22,13 @@ import {
 interface TableProps<TData> {
   table: ReturnType<typeof useReactTable<TData>>;
   globalFilter: string;
+  isLoading?: boolean;
   setGlobalFilter: (value: string) => void;
 }
 
 function Table<TData>({
   table,
+  isLoading = false,
   globalFilter,
   setGlobalFilter,
 }: TableProps<TData>) {
@@ -103,82 +105,89 @@ function Table<TData>({
 
       {/* Tabla principal  */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                <th className="px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={table.getIsAllRowsSelected()}
-                    onChange={table.getToggleAllRowsSelectedHandler()}
-                  />
-                </th>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={`flex items-center space-x-2 cursor-pointer hover:text-gray-700 ${
-                          header.column.getCanSort() ? 'select-none' : ''
-                        }`}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        <span>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </span>
-                        {header.column.getCanSort() && (
-                          <span className="text-gray-400">
-                            {header.column.getIsSorted() === 'asc' ? (
-                              <FaArrowUp className="w-4 h-4" />
-                            ) : header.column.getIsSorted() === 'desc' ? (
-                              <FaArrowDown className="w-4 h-4" />
-                            ) : (
-                              <FaSort className="w-4 h-4 opacity-30" />
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className={`transition-colors ${
-                  row.getIsSelected() ? 'bg-blue-50' : 'hover:bg-gray-50'
-                }`}
-              >
-                <td>
-                  <div>
+        {isLoading ? (
+          <p className="text-center"> Loading table... </p>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  <th className="px-4 py-3">
                     <input
                       type="checkbox"
-                      checked={row.getIsSelected()}
-                      onChange={row.getToggleSelectedHandler()}
+                      checked={table.getIsAllRowsSelected()}
+                      onChange={table.getToggleAllRowsSelectedHandler()}
                     />
-                  </div>
-                </td>
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="px-4 py-3 whitespace-nowrap text-sm text-gray-700"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </th>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      {header.isPlaceholder ? null : (
+                        <div
+                          className={`flex items-center space-x-2 cursor-pointer hover:text-gray-700 ${
+                            header.column.getCanSort() ? 'select-none' : ''
+                          }`}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          <span>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </span>
+                          {header.column.getCanSort() && (
+                            <span className="text-gray-400">
+                              {header.column.getIsSorted() === 'asc' ? (
+                                <FaArrowUp className="w-4 h-4" />
+                              ) : header.column.getIsSorted() === 'desc' ? (
+                                <FaArrowDown className="w-4 h-4" />
+                              ) : (
+                                <FaSort className="w-4 h-4 opacity-30" />
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className={`transition-colors ${
+                    row.getIsSelected() ? 'bg-blue-50' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <td>
+                    <div>
+                      <input
+                        type="checkbox"
+                        checked={row.getIsSelected()}
+                        onChange={row.getToggleSelectedHandler()}
+                      />
+                    </div>
                   </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="px-4 py-3 whitespace-nowrap text-sm text-gray-700"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Paginación */}

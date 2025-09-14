@@ -13,7 +13,7 @@ export const usePosts = ({
   pageSize: number;
 }) =>
   useQuery({
-    queryKey: [QUERY_KEYS.POSTS, pageSize, pageIndex, tag],
+    queryKey: [QUERY_KEYS.POSTS, pageSize.toString(), pageIndex.toString(), tag],
     queryFn: () => postsService.listPosts(pageIndex, pageSize, tag),
     select: (data) =>
       data.data as {

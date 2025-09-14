@@ -14,8 +14,6 @@ const GroupManagement = () => {
   const createGroupMtt = useCreateGroup();
   const deleteGroupsMtt = useDeleteGroups();
 
-  const [rowSelection, setRowSelection] = useState({});
-
   const [selectedGroups, setSelectedGroups] = useState<Group[]>([]);
   const [newId, setNewId] = useState('');
   const [newIdField, setNewIdField] = useState('');
@@ -31,15 +29,6 @@ const GroupManagement = () => {
   useEffect(() => {
     setNewId(extractGroupId(newIdField) || '');
   }, [newIdField]);
-
-  useEffect(() => {
-    const selectedRowIds = Object.keys(rowSelection);
-    const selectedGroupsData =
-      groupsQuery.data?.filter((_group, index) =>
-        selectedRowIds.includes(index.toString())
-      ) || [];
-    setSelectedGroups(selectedGroupsData);
-  }, [rowSelection, groupsQuery.data]);
 
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +54,6 @@ const GroupManagement = () => {
     deleteGroupsMtt.mutate(selectedGroups.map((g) => g.groupId));
     setSuccess(`Deletion task started for ${selectedGroups.length} groups`);
     setSelectedGroups([]);
-    setRowSelection({});
   };
 
   if (groupsQuery.isLoading) return <div>Loading...</div>;
@@ -159,7 +147,7 @@ const GroupManagement = () => {
 
       <GroupTable
         data={groupsQuery.data || []}
-        onSelectionChange={setRowSelection}
+        onSelectionChange={setSelectedGroups}
       />
     </div>
   );

@@ -10,7 +10,6 @@ const CreatePostTab = () => {
   const groupsQuery = useGroups();
   const createPostsMtt = useCreatePosts();
 
-  const [rowSelection, setRowSelection] = useState({});
   const [selectedGroups, setSelectedGroups] = useState<Group[]>([]);
 
   const [message, setMessage] = useState('');
@@ -27,15 +26,6 @@ const CreatePostTab = () => {
   useEffect(() => {
     if (status.error) toast.error(status.error);
   }, [status.error]);
-
-  useEffect(() => {
-    const selectedRowIds = Object.keys(rowSelection);
-    const selectedGroupsData =
-      groupsQuery.data?.filter((_group, index) =>
-        selectedRowIds.includes(index.toString())
-      ) || [];
-    setSelectedGroups(selectedGroupsData);
-  }, [rowSelection, groupsQuery.data]);
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,7 +146,7 @@ const CreatePostTab = () => {
         <div className="mb-4">
           <GroupTable
             data={groupsQuery.data || []}
-            onSelectionChange={setRowSelection}
+            onSelectionChange={setSelectedGroups}
           />
         </div>
 

@@ -1,6 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { useStatus } from '../../hooks/useStatus';
-import { api } from '../../services/api';
 import {
   useReactTable,
   getCoreRowModel,
@@ -92,13 +91,10 @@ const columns: ColumnDef<Post>[] = [
   },
 ];
 
-interface Props {
-  statusHook: ReturnType<typeof useStatus>;
-}
 
 export const DeletePostTab = () => {
   const [globalFilter, setGlobalFilter] = useState('');
-  const status = useStatus(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -108,7 +104,6 @@ export const DeletePostTab = () => {
     pageSize: pagination.pageSize,
   });
 
-  // Configuración de la tabla
   const table = useReactTable({
     data: postsQuery.data?.posts || [],
     columns,
@@ -132,11 +127,11 @@ export const DeletePostTab = () => {
   const handleDeletePosts = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
     if (selectedRows.length === 0) {
-      status.set('ERROR', 'Please select at least one post to delete');
+      toast.error('Please select at least one post to delete');
       return;
     }
 
-    status.set('LOADING');
+    setIsDeleting(true)
     try {
       const postsToDelete = selectedRows.map((row) => ({
         groupId: row.original.groupId,
@@ -146,7 +141,9 @@ export const DeletePostTab = () => {
       const response = await postsService.deletePosts(postsToDelete);
       toast.success(`Post deletion task started: ${response.taskId}`);
     } catch (err) {
-      status.set('ERROR', err instanceof Error ? err.message : 'Unknown error');
+      toast.error(err instanceof Error ? err.message : 'Unknown error');
+    } finally{
+      setIsDeleting(false);
     }
   };
 
@@ -158,6 +155,7 @@ export const DeletePostTab = () => {
       <Table
         table={table}
         globalFilter={globalFilter}
+        isLoading={!postsQuery.data}
         setGlobalFilter={setGlobalFilter}
       />
 
@@ -166,11 +164,11 @@ export const DeletePostTab = () => {
         <button
           onClick={handleDeletePosts}
           disabled={
-            status.loading || table.getSelectedRowModel().rows.length === 0
+            isDeleting || table.getSelectedRowModel().rows.length === 0
           }
           className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
         >
-          {status.loading
+          {isDeleting
             ? 'Deleting...'
             : `Delete Selected (${table.getSelectedRowModel().rows.length})`}
         </button>
