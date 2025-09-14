@@ -32,12 +32,14 @@ export const processPostCreate = async ({
   const commonTag = randomUUID().split('-')[0];
 
   for (const groupId of groupIds) {
-    const post = await createPostFromFb(groupId, message, files);
+    try {
+      const post = await createPostFromFb(groupId, message, files);
 
-    post.desc = desc;
-    post.tags = [commonTag, ...tags];
-    await savePost(post);
-    posts.push(post);
+      post.desc = desc;
+      post.tags = [commonTag, ...tags];
+      await savePost(post);
+      posts.push(post);
+    } catch {}
   }
 
   return posts;
