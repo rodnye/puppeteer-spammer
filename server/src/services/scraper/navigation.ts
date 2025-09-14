@@ -1,5 +1,5 @@
 import { logger } from '@/services/core/logger';
-import { getPage } from '@/services/core/browser';
+import { closeBrowser, getPage } from '@/services/core/browser';
 import { getFacebookLogin } from './login';
 import { FbGroupDto, FbPostDto } from './dto';
 import { matchGroup, matchPost } from './utils';
@@ -35,7 +35,7 @@ export const url2FbGroup = async (
 
   if (!opt.noName) {
     const page = await getPage();
-    await goToGroup(FbGroupDto.makeUrl(groupId))
+    await goToGroup(FbGroupDto.makeUrl(groupId));
 
     // a example of title: "(9) Grupo de prueba | Facebook"
     const title = (await page.title()).trim();
@@ -55,12 +55,27 @@ export const url2FbGroup = async (
  * navigates to a specific Facebook group
  */
 export const goToGroup = async (url: string) => {
-  const page = await getFacebookLogin();
+  let page = await getFacebookLogin();
 
   logger.browser(`[Navigation] Group: ${url}`);
-  await page.goto(url, {
-    waitUntil: 'networkidle2',
-  });
+
+  let tryleft = 2;
+  do {
+    try {
+      await page.goto(url, {
+        waitUntil: 'networkidle2',
+      });
+      break;
+    } catch (error) {
+      // Esta solucion aun hay que verificarla
+      await closeBrowser();
+      page = await getFacebookLogin();
+
+      if (!tryleft) {
+        throw error;
+      }
+    }
+  } while (--tryleft);
 
   return page.url();
 };
@@ -69,7 +84,7 @@ export const goToGroup = async (url: string) => {
  * navigates to a specific Facebook Post in group
  */
 export const goToPost = async (target: string | FbPostDto) => {
-  const page = await getFacebookLogin();
+  let page = await getFacebookLogin();
 
   // get group id and post id
   let post: FbPostDto =
@@ -78,9 +93,23 @@ export const goToPost = async (target: string | FbPostDto) => {
   const fullUrl = `https://www.facebook.com/groups/${post.groupId}/posts/${post.postId}`;
 
   logger.browser(`[Navigation] Post: ${fullUrl}`);
-  await page.goto(fullUrl, {
-    waitUntil: 'networkidle2',
-  });
+  let tryleft = 2;
+  do {
+    try {
+      await page.goto(fullUrl, {
+        waitUntil: 'networkidle2',
+      });
+      break;
+    } catch (error) {
+      // Esta solucion aun hay que verificarla
+      await closeBrowser();
+      page = await getFacebookLogin();
+
+      if (!tryleft) {
+        throw error;
+      }
+    }
+  } while (--tryleft);
 
   return page.url();
 };
