@@ -28,7 +28,6 @@ export const schemas = {
       'type',
       'data',
       'status',
-      'priority',
       'createdAt',
       'updatedAt',
     ],

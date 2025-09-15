@@ -13,7 +13,7 @@ export const savePost = async (post: FbPostDto): Promise<void> => {
   await redis.hset(postKey, {
     postId: post.postId,
     groupId: post.groupId,
-    tags: JSON.stringify(post.tags),
+    tags: JSON.stringify(post.tags.map(tag => tag.toLowerCase())),
     desc: post.desc,
   });
 
