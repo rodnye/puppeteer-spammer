@@ -87,7 +87,7 @@ const TaskDetail = () => {
               Task Data
             </h2>
             <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
-              {JSON.stringify(task.data, null, 2)}
+              {JSON.stringify(task, null, 2)}
             </pre>
 
             {task.error && (

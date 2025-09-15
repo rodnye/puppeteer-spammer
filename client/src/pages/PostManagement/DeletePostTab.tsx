@@ -10,9 +10,10 @@ import {
   getFacetedUniqueValues,
   getFacetedMinMaxValues,
   ColumnDef,
+  ColumnFiltersState,
 } from '@tanstack/react-table';
 import { usePosts } from '../../api/hooks/usePosts';
-import Table from '../../components/Table';
+import Table, { arrIncludeFilterFn } from '../../components/Table';
 import { makeGroupUrl, makePostUrl } from '../../utils/url';
 import { postsService } from '../../api/services/posts';
 import Tag from '../../components/Tag';
@@ -21,23 +22,6 @@ import { useGroups } from '../../api/hooks/useGroups';
 import toast from 'react-hot-toast';
 
 const columns: ColumnDef<Post>[] = [
-  {
-    id: 'selection',
-    header: ({ table }) => (
-      <input
-        type="checkbox"
-        checked={table.getIsAllRowsSelected()}
-        onChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    cell: ({ row }) => (
-      <input
-        type="checkbox"
-        checked={row.getIsSelected()}
-        onChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
   {
     accessorKey: 'postId',
     header: 'Post ID',
@@ -77,6 +61,7 @@ const columns: ColumnDef<Post>[] = [
   {
     accessorKey: 'tags',
     header: 'Tags',
+    filterFn: arrIncludeFilterFn,
     cell: ({ row }) => (
       <div className="max-w-32 flex flex-wrap">
         {row.original.tags.map((tag) => (
@@ -99,20 +84,25 @@ export const DeletePostTab = () => {
     pageIndex: 0,
     pageSize: 10,
   });
+  const [columnFilters, setColumnFilters] = useState <ColumnFiltersState>([]);
+
   const postsQuery = usePosts({
     pageIndex: pagination.pageIndex,
     pageSize: pagination.pageSize,
+    tag: columnFilters.find((f => f.id === 'tags'))?.value as string,
   });
-
+  
   const table = useReactTable({
     data: postsQuery.data?.posts || [],
     columns,
     state: {
       globalFilter,
       pagination,
+      columnFilters,
     },
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -121,9 +111,11 @@ export const DeletePostTab = () => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
     pageCount: postsQuery.data?.pageCount,
+    manualPagination: true,
     enableRowSelection: true,
+    manualFiltering: true,
   });
-
+  
   const handleDeletePosts = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
     if (selectedRows.length === 0) {

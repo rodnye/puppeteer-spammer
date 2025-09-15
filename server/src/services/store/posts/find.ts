@@ -46,7 +46,7 @@ export const findPostsByTag = async (
 
   for (const rkey of rkeys) {
     const post = (await findPostByRKey(rkey))!;
-    if (!tag || post.tags.includes(tag)) {
+    if (!tag || post.tags.some(t => t.includes(tag))) {
       posts.push(post);
     }
   }

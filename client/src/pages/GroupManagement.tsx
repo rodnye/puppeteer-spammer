@@ -7,7 +7,7 @@ import {
   useGroups,
 } from '../api/hooks/useGroups';
 import GroupTable from '../components/GroupTable';
-
+import toast from 'react-hot-toast';
 
 const GroupManagement = () => {
   const groupsQuery = useGroups();
@@ -18,12 +18,15 @@ const GroupManagement = () => {
   const [newId, setNewId] = useState('');
   const [newIdField, setNewIdField] = useState('');
   const [newTagsField, setNewTagsField] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    if (groupsQuery.error) setError(groupsQuery.error.message);
-    else setError(null);
+    if (groupsQuery.isLoading) {
+      toast.loading('Cargando grupos...');
+    }
+  }, [groupsQuery.isLoading]);
+
+  useEffect(() => {
+    if (groupsQuery.error) toast.error(groupsQuery.error.message);
   }, [groupsQuery.error]);
 
   useEffect(() => {
@@ -33,7 +36,7 @@ const GroupManagement = () => {
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newId) {
-      alert('El group id proporcionado no es válido');
+      toast.error('El group id proporcionado no es válido');
       return;
     }
     const tags = newTagsField
@@ -41,18 +44,18 @@ const GroupManagement = () => {
       .map((tag) => tag.trim())
       .filter(Boolean);
     createGroupMtt.mutate({ groupId: newIdField, tags });
-    setSuccess(`Group creation task started for ${newIdField}`);
+    toast.success(`Group creation task started for ${newIdField}`);
     setNewIdField('');
     setNewTagsField('');
   };
 
   const handleDeleteGroups = async () => {
     if (selectedGroups.length === 0) {
-      alert('Please select groups to delete');
+      toast.error('Please select groups to delete');
       return;
     }
     deleteGroupsMtt.mutate(selectedGroups.map((g) => g.groupId));
-    setSuccess(`Deletion task started for ${selectedGroups.length} groups`);
+    toast.success(`Deletion task started for ${selectedGroups.length} groups`);
     setSelectedGroups([]);
   };
 
@@ -61,16 +64,6 @@ const GroupManagement = () => {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Group Management</h1>
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {success}
-        </div>
-      )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">Add New Group</h2>

@@ -8,7 +8,7 @@ export const schemas = {
         type: 'string',
         enum: ['POST_CREATE', 'POST_DELETE', 'GROUP_CREATE', 'GROUP_DELETE'],
       },
-      data: { type: 'object' },
+      data: { type: 'string' },
       status: {
         type: 'string',
         enum: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'],

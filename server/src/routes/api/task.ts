@@ -134,7 +134,7 @@ const taskRoute: FastifyPluginAsync = async (app) => {
         task: {
           id: task.id,
           type: task.type,
-          data: task.data,
+          data: JSON.stringify(task.data),
           status: task.status,
           createdAt: task.createdAt,
           updatedAt: task.updatedAt,
