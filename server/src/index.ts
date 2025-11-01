@@ -1,5 +1,4 @@
 import Fastify from 'fastify';
-import autoload from '@fastify/autoload';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import cors from '@fastify/cors';
@@ -19,6 +18,7 @@ import {
   SERVER_URL,
 } from '@/services/core/config';
 import { schemas } from './routes/schemas/schemas';
+import { autoload } from './lib/autoload';
 
 const app = Fastify({
   loggerInstance: logger,
