@@ -1,5 +1,8 @@
 import { Equals, IsArray, IsOptional, IsString } from 'class-validator';
 import { matchUser } from './utils';
+import { join } from 'path';
+import { SESSIONS_DIR } from '../core/config';
+import { randomUUID } from 'crypto';
 
 export class FbPostDto {
   @IsString()
@@ -99,5 +102,30 @@ export class FbCommentDto {
 
   get url() {
     return `https://www.facebook.com/groups/${this.groupId}/posts/${this.postId}/?comment_id=${this.id}`;
+  }
+}
+
+export class FbUserDto {
+  @IsString()
+  sessionId: string;
+  
+  @IsString()
+  user: string;
+
+  @IsString()
+  pass: string;
+
+  @IsString()
+  fbUser: string;
+
+  @IsString()
+  fbPass: string;
+
+  @IsString()
+  @IsOptional()
+  sessionUrl: string;
+
+  get browserSessionDir() {
+    return join(SESSIONS_DIR, this.sessionId);
   }
 }

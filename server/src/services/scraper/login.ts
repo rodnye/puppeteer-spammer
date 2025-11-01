@@ -1,5 +1,5 @@
 import type { Page } from 'puppeteer';
-import { getPage } from '@/services/core/browser';
+import { older_getPage } from '@/services/core/browser';
 import { logger } from '@/services/core/logger';
 import { FB_PASS, FB_USER, HEADLESS_MODE } from '@/services/core/config';
 
@@ -14,7 +14,7 @@ export const getFacebookLogin = async (): Promise<Page> => {
     return facebookPageInstance;
   }
 
-  const page = await getPage();
+  const page = await older_getPage();
 
   log.browser('Navigating to FB login page');
   await page.goto('https://www.facebook.com/login', {

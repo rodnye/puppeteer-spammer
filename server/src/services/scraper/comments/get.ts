@@ -1,5 +1,5 @@
 import { logger } from '@/services/core/logger';
-import { getPage } from '@/services/core/browser';
+import { older_getPage } from '@/services/core/browser';
 import { FbCommentDto, FbPostDto } from '../dto';
 import { goToPost } from '../navigation';
 import { matchComment } from '../utils';
@@ -7,7 +7,7 @@ import { parseDto } from '@/utils/parse-dto';
 
 export const getCommentsFromFb = async (post: FbPostDto) => {
   const log = logger.child({ msgPrefix: '[FB] [GET COMMENTS]' });
-  const page = await getPage();
+  const page = await older_getPage();
 
   const fullUrl = await goToPost(post.url);
   log.info('Post: ' + fullUrl);

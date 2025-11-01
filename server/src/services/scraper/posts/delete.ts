@@ -1,11 +1,11 @@
 import { logger } from '@/services/core/logger';
-import { getPage } from '@/services/core/browser';
+import { older_getPage } from '@/services/core/browser';
 import { goToPost } from '../navigation';
 import { FbPostDto } from '../dto';
 
 export const deletePostFromFb = async (groupId: string, postId: string) => {
   const log = logger.child({ msgPrefix: '[FB] [DELETE POST]' });
-  const page = await getPage();
+  const page = await older_getPage();
 
   const fullUrl = await goToPost(FbPostDto.makeUrl(groupId, postId));
 

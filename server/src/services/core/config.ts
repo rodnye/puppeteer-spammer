@@ -20,6 +20,11 @@ export const ROOT_DIR = join(
   '../../../'
 );
 export const UPLOADS_DIR = join(ROOT_DIR, 'database', 'uploads');
+export const SESSIONS_DIR = join(ROOT_DIR, 'database', 'browser-sessions');
+
+/**
+ * @deprecated
+ */
 export const PTR_SESSION_DIR = join(ROOT_DIR, 'database', 'puppeteer-session');
 export const PTR_EXEC_DIR = (() => {
   const p = process.env.PTR_EXEC_DIR;

@@ -1,5 +1,5 @@
 import { logger } from '@/services/core/logger';
-import { closeBrowser, getPage } from '@/services/core/browser';
+import { closeBrowser, older_getPage } from '@/services/core/browser';
 import { getFacebookLogin } from './login';
 import { FbGroupDto, FbPostDto } from './dto';
 import { matchGroup, matchPost } from './utils';
@@ -34,7 +34,7 @@ export const url2FbGroup = async (
   let name: string | null = null;
 
   if (!opt.noName) {
-    const page = await getPage();
+    const page = await older_getPage();
     await goToGroup(FbGroupDto.makeUrl(groupId));
 
     // a example of title: "(9) Grupo de prueba | Facebook"
